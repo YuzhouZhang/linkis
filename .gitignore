@@ -34,3 +34,4 @@ target/
 *.log
 logs/
 nohup.out
+.vscode/
