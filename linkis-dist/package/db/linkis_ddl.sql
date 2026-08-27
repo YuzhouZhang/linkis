@@ -33,6 +33,7 @@
 -- 2. AOMP 执行sql 语句 create table 可以带反撇号，alter 语句不能带反撇号
 -- 3. 使用 alter 添加、修改字段时请带要字符集和排序规则 CHARSET utf8mb4 COLLATE utf8mb4_bin
 
+SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS `linkis_ps_configuration_config_key`;
