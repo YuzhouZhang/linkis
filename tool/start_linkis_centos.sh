@@ -73,8 +73,14 @@ for cfg in /opt/linkis/conf/linkis.properties /etc/linkis-conf/linkis.properties
   sed -i "s|wds.linkis.server.mybatis.datasource.driver-class-name=.*|wds.linkis.server.mybatis.datasource.driver-class-name=com.mysql.cj.jdbc.Driver|g" "$cfg"
   grep -q "wds.linkis.engineconn.home" "$cfg" || echo "wds.linkis.engineconn.home=/opt/linkis/lib/linkis-engineconn-plugins" >> "$cfg"
   grep -q "wds.linkis.engineconn.plugin.home" "$cfg" || echo "wds.linkis.engineconn.plugin.home=/opt/linkis/lib/linkis-engineconn-plugins" >> "$cfg"
+  grep -q "wds.linkis.engineconn.bml.upload.failed.enable" "$cfg" || echo "wds.linkis.engineconn.bml.upload.failed.enable=false" >> "$cfg"
+  sed -i "s|wds.linkis.bml.is.hdfs=.*|wds.linkis.bml.is.hdfs=false|g" "$cfg"
+  grep -q "wds.linkis.bml.local.prefix" "$cfg" || echo "wds.linkis.bml.local.prefix=/opt/linkis/data/bml" >> "$cfg"
+  grep -q "wds.linkis.filesystem.root.path" "$cfg" || echo "wds.linkis.filesystem.root.path=file:///tmp/linkis/" >> "$cfg"
+  grep -q "wds.linkis.filesystem.hdfs.root.path" "$cfg" || echo "wds.linkis.filesystem.hdfs.root.path=file:///tmp/linkis/" >> "$cfg"
 done
 
+mkdir -p /opt/linkis/data/bml /tmp/linkis
 echo "=== 4. 调整目录权限 ==="
 chown -R hadoop:root /opt/linkis /etc/linkis-conf /var/logs/linkis /home/hadoop /appcom 2>/dev/null || true
 chmod -R 775 /opt/linkis /etc/linkis-conf /var/logs/linkis /home/hadoop /appcom 2>/dev/null || true
