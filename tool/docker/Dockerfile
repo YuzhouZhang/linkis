@@ -11,12 +11,14 @@ ENV PATH=$LINKIS_HOME/bin:$LINKIS_HOME/sbin:$PATH
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     tar \
+    unzip \
     sudo \
     procps \
     net-tools \
     iputils-ping \
     vim \
     openssh-client \
+    mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # 将默认 sh 软链接指向 bash（解决 dash 不兼容 Linkis 启动脚本问题）
@@ -36,17 +38,39 @@ RUN curl -fSL "https://archive.apache.org/dist/linkis/${LINKIS_VERSION}/apache-l
     && rm linkis-bin.tar.gz \
     && cp ${LINKIS_HOME}/linkis-env.sh ${LINKIS_HOME}/conf/linkis-env.sh 2>/dev/null || true
 
-# 下载 MySQL Connector 驱动并放置到公共与引擎库
+# 下载 MySQL Connector 驱动并分发到公共模块与各微服务 lib
 RUN curl -fSL "https://repo1.maven.org/maven2/mysql/mysql-connector-java/${MYSQL_JDBC_VERSION}/mysql-connector-java-${MYSQL_JDBC_VERSION}.jar" -o /opt/mysql-connector.jar \
-    && cp /opt/mysql-connector.jar ${LINKIS_HOME}/lib/linkis-commons/ \
+    && mkdir -p ${LINKIS_HOME}/lib/linkis-commons/public-module/ \
+    && cp /opt/mysql-connector.jar ${LINKIS_HOME}/lib/linkis-commons/public-module/ \
     && mkdir -p ${LINKIS_HOME}/lib/linkis-spring-cloud-services/linkis-mg-gateway/ \
     && cp /opt/mysql-connector.jar ${LINKIS_HOME}/lib/linkis-spring-cloud-services/linkis-mg-gateway/ \
+    && mkdir -p ${LINKIS_HOME}/lib/linkis-spring-cloud-services/linkis-mg-eureka/ \
+    && cp /opt/mysql-connector.jar ${LINKIS_HOME}/lib/linkis-spring-cloud-services/linkis-mg-eureka/ \
+    && mkdir -p ${LINKIS_HOME}/lib/linkis-public-enhancements/linkis-ps-publicservice/ \
+    && cp /opt/mysql-connector.jar ${LINKIS_HOME}/lib/linkis-public-enhancements/linkis-ps-publicservice/ \
+    && mkdir -p ${LINKIS_HOME}/lib/linkis-computation-governance/linkis-cg-linkismanager/ \
+    && cp /opt/mysql-connector.jar ${LINKIS_HOME}/lib/linkis-computation-governance/linkis-cg-linkismanager/ \
+    && mkdir -p ${LINKIS_HOME}/lib/linkis-computation-governance/linkis-cg-entrance/ \
+    && cp /opt/mysql-connector.jar ${LINKIS_HOME}/lib/linkis-computation-governance/linkis-cg-entrance/ \
+    && mkdir -p ${LINKIS_HOME}/lib/linkis-computation-governance/linkis-cg-engineconnmanager/ \
+    && cp /opt/mysql-connector.jar ${LINKIS_HOME}/lib/linkis-computation-governance/linkis-cg-engineconnmanager/ \
+    && mkdir -p ${LINKIS_HOME}/lib/linkis-computation-governance/linkis-client/ \
+    && cp /opt/mysql-connector.jar ${LINKIS_HOME}/lib/linkis-computation-governance/linkis-client/ \
     && rm /opt/mysql-connector.jar
+
+# 软链接兼容 /appcom/Install/LinkisInstall
+RUN mkdir -p /appcom/Install \
+    && ln -sfn ${LINKIS_HOME} /appcom/Install/LinkisInstall
+
+# 拷贝插件包目录（如果存在）
+COPY plugins/ ${LINKIS_HOME}/lib/linkis-engineconn-plugins/
 
 # 创建必要目录并赋予权限
 RUN mkdir -p ${LINKIS_LOG_DIR} \
-    && mkdir -p ${LINKIS_HOME}/lib/linkis-engineplugins \
-    && chown -R hadoop:hadoop ${LINKIS_HOME} \
+    && mkdir -p /etc/linkis-conf \
+    && cp -rn ${LINKIS_HOME}/conf/* /etc/linkis-conf/ 2>/dev/null || true \
+    && chown -R hadoop:hadoop ${LINKIS_HOME} /etc/linkis-conf /appcom /home/hadoop \
+    && chmod -R 775 ${LINKIS_HOME} /etc/linkis-conf /appcom /home/hadoop \
     && chmod a+x ${LINKIS_HOME}/bin/* \
     && chmod a+x ${LINKIS_HOME}/sbin/*
 

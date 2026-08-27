@@ -35,3 +35,4 @@ target/
 logs/
 nohup.out
 .vscode/
+tool/docker/plugins/
