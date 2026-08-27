@@ -87,12 +87,14 @@ if [ -f "$LINKIS_PROPERTIES" ]; then
     sed -i "s|wds.linkis.server.mybatis.datasource.driver-class-name=.*|wds.linkis.server.mybatis.datasource.driver-class-name=com.mysql.cj.jdbc.Driver|g" "$LINKIS_PROPERTIES"
     grep -q "wds.linkis.engineconn.home" "$LINKIS_PROPERTIES" || echo "wds.linkis.engineconn.home=/opt/linkis/lib/linkis-engineconn-plugins" >> "$LINKIS_PROPERTIES"
     grep -q "wds.linkis.engineconn.plugin.home" "$LINKIS_PROPERTIES" || echo "wds.linkis.engineconn.plugin.home=/opt/linkis/lib/linkis-engineconn-plugins" >> "$LINKIS_PROPERTIES"
+    sed -i "s|wds.linkis.filesystem.hdfs.root.path=.*|wds.linkis.filesystem.hdfs.root.path=file:///tmp/linkis/|g" "$LINKIS_PROPERTIES"
+    sed -i "s|wds.linkis.filesystem.root.path=.*|wds.linkis.filesystem.root.path=file:///tmp/linkis/|g" "$LINKIS_PROPERTIES"
+    grep -q "wds.linkis.entrance.config.log.path" "$LINKIS_PROPERTIES" || echo "wds.linkis.entrance.config.log.path=file:///tmp/linkis/logs" >> "$LINKIS_PROPERTIES"
+    grep -q "wds.linkis.resultSet.store.path" "$LINKIS_PROPERTIES" || echo "wds.linkis.resultSet.store.path=file:///tmp/linkis/resultset" >> "$LINKIS_PROPERTIES"
     grep -q "wds.linkis.engineconn.bml.upload.failed.enable" "$LINKIS_PROPERTIES" || echo "wds.linkis.engineconn.bml.upload.failed.enable=false" >> "$LINKIS_PROPERTIES"
     sed -i "s|wds.linkis.bml.is.hdfs=.*|wds.linkis.bml.is.hdfs=false|g" "$LINKIS_PROPERTIES"
     grep -q "wds.linkis.bml.local.prefix" "$LINKIS_PROPERTIES" || echo "wds.linkis.bml.local.prefix=/opt/linkis/data/bml" >> "$LINKIS_PROPERTIES"
-    grep -q "wds.linkis.filesystem.root.path" "$LINKIS_PROPERTIES" || echo "wds.linkis.filesystem.root.path=file:///tmp/linkis/" >> "$LINKIS_PROPERTIES"
-    grep -q "wds.linkis.filesystem.hdfs.root.path" "$LINKIS_PROPERTIES" || echo "wds.linkis.filesystem.hdfs.root.path=file:///tmp/linkis/" >> "$LINKIS_PROPERTIES"
-    mkdir -p /opt/linkis/data/bml /tmp/linkis
+    mkdir -p /opt/linkis/data/bml /tmp/linkis/logs /tmp/linkis/resultset
 fi
 
 # 同步配置到 /etc/linkis-conf

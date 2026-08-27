@@ -70,17 +70,16 @@ for cfg in /opt/linkis/conf/linkis.properties /etc/linkis-conf/linkis.properties
   sed -i "s|wds.linkis.server.mybatis.datasource.url=.*|wds.linkis.server.mybatis.datasource.url=jdbc:mysql://test-mysql-init:3306/linkis?characterEncoding=UTF-8\&useSSL=false\&allowPublicKeyRetrieval=true\&serverTimezone=Asia/Shanghai|g" "$cfg"
   sed -i "s|wds.linkis.server.mybatis.datasource.username=.*|wds.linkis.server.mybatis.datasource.username=root|g" "$cfg"
   sed -i "s|wds.linkis.server.mybatis.datasource.password=.*|wds.linkis.server.mybatis.datasource.password=123456|g" "$cfg"
-  sed -i "s|wds.linkis.server.mybatis.datasource.driver-class-name=.*|wds.linkis.server.mybatis.datasource.driver-class-name=com.mysql.cj.jdbc.Driver|g" "$cfg"
-  grep -q "wds.linkis.engineconn.home" "$cfg" || echo "wds.linkis.engineconn.home=/opt/linkis/lib/linkis-engineconn-plugins" >> "$cfg"
-  grep -q "wds.linkis.engineconn.plugin.home" "$cfg" || echo "wds.linkis.engineconn.plugin.home=/opt/linkis/lib/linkis-engineconn-plugins" >> "$cfg"
+  sed -i "s|wds.linkis.filesystem.hdfs.root.path=.*|wds.linkis.filesystem.hdfs.root.path=file:///tmp/linkis/|g" "$cfg"
+  sed -i "s|wds.linkis.filesystem.root.path=.*|wds.linkis.filesystem.root.path=file:///tmp/linkis/|g" "$cfg"
+  grep -q "wds.linkis.entrance.config.log.path" "$cfg" || echo "wds.linkis.entrance.config.log.path=file:///tmp/linkis/logs" >> "$cfg"
+  grep -q "wds.linkis.resultSet.store.path" "$cfg" || echo "wds.linkis.resultSet.store.path=file:///tmp/linkis/resultset" >> "$cfg"
   grep -q "wds.linkis.engineconn.bml.upload.failed.enable" "$cfg" || echo "wds.linkis.engineconn.bml.upload.failed.enable=false" >> "$cfg"
   sed -i "s|wds.linkis.bml.is.hdfs=.*|wds.linkis.bml.is.hdfs=false|g" "$cfg"
   grep -q "wds.linkis.bml.local.prefix" "$cfg" || echo "wds.linkis.bml.local.prefix=/opt/linkis/data/bml" >> "$cfg"
-  grep -q "wds.linkis.filesystem.root.path" "$cfg" || echo "wds.linkis.filesystem.root.path=file:///tmp/linkis/" >> "$cfg"
-  grep -q "wds.linkis.filesystem.hdfs.root.path" "$cfg" || echo "wds.linkis.filesystem.hdfs.root.path=file:///tmp/linkis/" >> "$cfg"
 done
 
-mkdir -p /opt/linkis/data/bml /tmp/linkis
+mkdir -p /opt/linkis/data/bml /tmp/linkis/logs /tmp/linkis/resultset
 echo "=== 4. 调整目录权限 ==="
 chown -R hadoop:root /opt/linkis /etc/linkis-conf /var/logs/linkis /home/hadoop /appcom 2>/dev/null || true
 chmod -R 775 /opt/linkis /etc/linkis-conf /var/logs/linkis /home/hadoop /appcom 2>/dev/null || true
