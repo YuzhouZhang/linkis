@@ -103,9 +103,9 @@ class TrinoEngineConnExecutor(override val outputPrintLimit: Int, val id: Int)
 
     override def apply(user: String): OkHttpClient = {
       val builder = new OkHttpClient.Builder()
-        .socketFactory(new SocketChannelSocketFactory)
         .connectTimeout(TRINO_HTTP_CONNECT_TIME_OUT.getValue, TimeUnit.SECONDS)
         .readTimeout(TRINO_HTTP_READ_TIME_OUT.getValue, TimeUnit.SECONDS)
+        .protocols(util.Collections.singletonList(okhttp3.Protocol.HTTP_1_1))
 
       /* create password interceptor */
       val password = TRINO_PASSWORD.getValue

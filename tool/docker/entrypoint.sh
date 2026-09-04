@@ -39,6 +39,22 @@ while ! (echo > /dev/tcp/${MYSQL_HOST}/${MYSQL_PORT}) 2>/dev/null; do
     sleep 2
 done
 
+# 2.5 自动注入 Trino 引擎元数据（幂等）
+TRINO_SQL="/opt/linkis/conf/init_trino_metadata.sql"
+if [ -f "${TRINO_SQL}" ]; then
+    echo "Checking Trino engine metadata in MySQL..."
+    TRINO_EXISTS=$(mysql -N -s -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" "${MYSQL_DB}" \
+        -e "SELECT COUNT(*) FROM linkis_cg_manager_label WHERE label_value LIKE '%trino%'" 2>/dev/null || echo "0")
+    if [ "${TRINO_EXISTS}" = "0" ]; then
+        echo "Initializing Trino engine metadata..."
+        mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" "${MYSQL_DB}" < "${TRINO_SQL}" 2>/dev/null && \
+            echo "Trino metadata initialized successfully." || \
+            echo "WARNING: Failed to initialize Trino metadata (tables may not exist yet, will retry on next restart)."
+    else
+        echo "Trino metadata already exists, skipping."
+    fi
+fi
+
 # 3. 注入 linkis-env.sh
 cat << ENVEOF > "$LINKIS_ENV"
 export LINKIS_VERSION=1.8.0
@@ -91,10 +107,24 @@ if [ -f "$LINKIS_PROPERTIES" ]; then
     sed -i "s|wds.linkis.filesystem.root.path=.*|wds.linkis.filesystem.root.path=file:///tmp/linkis/|g" "$LINKIS_PROPERTIES"
     grep -q "wds.linkis.entrance.config.log.path" "$LINKIS_PROPERTIES" || echo "wds.linkis.entrance.config.log.path=file:///tmp/linkis/logs" >> "$LINKIS_PROPERTIES"
     grep -q "wds.linkis.resultSet.store.path" "$LINKIS_PROPERTIES" || echo "wds.linkis.resultSet.store.path=file:///tmp/linkis/resultset" >> "$LINKIS_PROPERTIES"
+    sed -i "s|wds.linkis.resultSet.store.path=.*|wds.linkis.resultSet.store.path=file:///tmp/linkis/resultset|g" "$LINKIS_PROPERTIES"
+    sed -i "s|wds.linkis.resultSet.store.path=.*|wds.linkis.resultSet.store.path=file:///tmp/linkis/resultset|g" /opt/linkis/conf/linkis-cg-entrance.properties 2>/dev/null || true
+    sed -i "s|wds.linkis.home=.*|wds.linkis.home=/opt/linkis|g" "$LINKIS_PROPERTIES"
     grep -q "wds.linkis.engineconn.bml.upload.failed.enable" "$LINKIS_PROPERTIES" || echo "wds.linkis.engineconn.bml.upload.failed.enable=false" >> "$LINKIS_PROPERTIES"
     sed -i "s|wds.linkis.bml.is.hdfs=.*|wds.linkis.bml.is.hdfs=false|g" "$LINKIS_PROPERTIES"
     grep -q "wds.linkis.bml.local.prefix" "$LINKIS_PROPERTIES" || echo "wds.linkis.bml.local.prefix=/opt/linkis/data/bml" >> "$LINKIS_PROPERTIES"
-    mkdir -p /opt/linkis/data/bml /tmp/linkis/logs /tmp/linkis/resultset
+    mkdir -p /opt/linkis/data/bml /tmp/linkis/logs /tmp/linkis/resultset /appcom/Install /data/dss/bml/hadoop/20260827 2>/dev/null || true
+    ln -sfn /opt/linkis /appcom/Install/LinkisInstall
+    if [ -f "/opt/linkis/lib/linkis-engineconn-plugins/trino/dist/371/lib.zip" ]; then
+        cp -n /opt/linkis/lib/linkis-engineconn-plugins/trino/dist/371/lib.zip /data/dss/bml/hadoop/20260827/30836318-f3fb-491c-9bc9-ac4a3c379f6d 2>/dev/null || true
+        cp -n /opt/linkis/lib/linkis-engineconn-plugins/trino/dist/371/conf.zip /data/dss/bml/hadoop/20260827/1fc40cf9-6c3a-43df-9196-b3c424d41cfc 2>/dev/null || true
+    fi
+    # 自动同步 Trino 插件全量物料到 ECM 公共目录
+    mkdir -p /appcom/tmp/engineConnPublickDir/30836318-f3fb-491c-9bc9-ac4a3c379f6d/v000001/lib
+    cp -rf /opt/linkis/lib/linkis-engineconn-plugins/trino/dist/371/lib/* /appcom/tmp/engineConnPublickDir/30836318-f3fb-491c-9bc9-ac4a3c379f6d/v000001/lib/ 2>/dev/null || true
+    mkdir -p /appcom/tmp/engineConnPublickDir/1fc40cf9-6c3a-43df-9196-b3c424d41cfc/v000001/conf
+    cp -rf /opt/linkis/lib/linkis-engineconn-plugins/trino/dist/371/conf/* /appcom/tmp/engineConnPublickDir/1fc40cf9-6c3a-43df-9196-b3c424d41cfc/v000001/conf/ 2>/dev/null || true
+    chown -R hadoop:hadoop /data /appcom /tmp/linkis 2>/dev/null || true
 fi
 
 # 同步配置到 /etc/linkis-conf

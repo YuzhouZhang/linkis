@@ -62,15 +62,17 @@ RUN curl -fSL "https://repo1.maven.org/maven2/mysql/mysql-connector-java/${MYSQL
 RUN mkdir -p /appcom/Install \
     && ln -sfn ${LINKIS_HOME} /appcom/Install/LinkisInstall
 
-# 拷贝插件包目录（如果存在）
+# 拷贝插件包目录（如果存在）与 Trino 初始化 SQL
 COPY plugins/ ${LINKIS_HOME}/lib/linkis-engineconn-plugins/
+COPY init_trino_metadata.sql ${LINKIS_HOME}/conf/init_trino_metadata.sql
 
 # 创建必要目录并赋予权限
 RUN mkdir -p ${LINKIS_LOG_DIR} \
     && mkdir -p /etc/linkis-conf \
+    && mkdir -p /data/dss/bml/hadoop/20260827 \
     && cp -rn ${LINKIS_HOME}/conf/* /etc/linkis-conf/ 2>/dev/null || true \
-    && chown -R hadoop:hadoop ${LINKIS_HOME} /etc/linkis-conf /appcom /home/hadoop \
-    && chmod -R 775 ${LINKIS_HOME} /etc/linkis-conf /appcom /home/hadoop \
+    && chown -R hadoop:hadoop ${LINKIS_HOME} /etc/linkis-conf /appcom /home/hadoop /data \
+    && chmod -R 775 ${LINKIS_HOME} /etc/linkis-conf /appcom /home/hadoop /data \
     && chmod a+x ${LINKIS_HOME}/bin/* \
     && chmod a+x ${LINKIS_HOME}/sbin/*
 
