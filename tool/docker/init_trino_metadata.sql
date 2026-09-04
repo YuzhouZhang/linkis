@@ -27,13 +27,16 @@ INSERT INTO `linkis_ps_configuration_config_key` (`key`, `description`, `name`, 
 VALUES ('linkis.trino.resultSet.cache.max', 'Trino结果集缓冲区大小', '结果集缓冲区', '512k', 'None', '', @ENGINE_NAME, 0, 0, 1, '数据源配置');
 
 INSERT INTO `linkis_ps_configuration_config_key` (`key`, `description`, `name`, `default_value`, `validate_type`, `validate_range`, `engine_conn_type`, `is_hidden`, `is_advanced`, `level`, `treeName`) 
-VALUES ('linkis.trino.url', 'Trino服务器URL', 'Trino服务器URL', 'http://trino:8080', 'None', '', @ENGINE_NAME, 0, 0, 1, '数据源配置');
+VALUES ('linkis.trino.url', 'Trino服务器URL', 'Trino服务器URL', 'https://trino2-clusterip.wgzcb-sjkkkcx.svc.cluster.local:8080', 'None', '', @ENGINE_NAME, 0, 0, 1, '数据源配置');
 
 INSERT INTO `linkis_ps_configuration_config_key` (`key`, `description`, `name`, `default_value`, `validate_type`, `validate_range`, `engine_conn_type`, `is_hidden`, `is_advanced`, `level`, `treeName`) 
-VALUES ('linkis.trino.user', '用于连接Trino查询服务的用户名', '用户名', 'null', 'None', '', @ENGINE_NAME, 0, 0, 1, '数据源配置');
+VALUES ('linkis.trino.user', '用于连接Trino查询服务的用户名', '用户名', 'admin', 'None', '', @ENGINE_NAME, 0, 0, 1, '数据源配置');
 
 INSERT INTO `linkis_ps_configuration_config_key` (`key`, `description`, `name`, `default_value`, `validate_type`, `validate_range`, `engine_conn_type`, `is_hidden`, `is_advanced`, `level`, `treeName`) 
-VALUES ('linkis.trino.password', '用于连接Trino查询服务的密码', '密码', 'null', 'None', '', @ENGINE_NAME, 0, 0, 1, '数据源配置');
+VALUES ('linkis.trino.password', '用于连接Trino查询服务的密码', '密码', 'zhangyuzhou668299', 'None', '', @ENGINE_NAME, 0, 0, 1, '数据源配置');
+
+INSERT INTO `linkis_ps_configuration_config_key` (`key`, `description`, `name`, `default_value`, `validate_type`, `validate_range`, `engine_conn_type`, `is_hidden`, `is_advanced`, `level`, `treeName`) 
+VALUES ('linkis.trino.ssl.insecured', '是否忽略服务器的SSL证书', '验证SSL证书', 'true', 'None', '', @ENGINE_NAME, 0, 0, 1, '数据源配置');
 
 INSERT INTO `linkis_ps_configuration_config_key` (`key`, `description`, `name`, `default_value`, `validate_type`, `validate_range`, `engine_conn_type`, `is_hidden`, `is_advanced`, `level`, `treeName`) 
 VALUES ('linkis.trino.catalog', '连接Trino查询时使用的catalog', 'Catalog', 'mysql', 'None', '', @ENGINE_NAME, 0, 0, 1, '数据源配置');

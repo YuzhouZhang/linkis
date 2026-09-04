@@ -113,6 +113,8 @@ if [ -f "$LINKIS_PROPERTIES" ]; then
     grep -q "wds.linkis.engineconn.bml.upload.failed.enable" "$LINKIS_PROPERTIES" || echo "wds.linkis.engineconn.bml.upload.failed.enable=false" >> "$LINKIS_PROPERTIES"
     sed -i "s|wds.linkis.bml.is.hdfs=.*|wds.linkis.bml.is.hdfs=false|g" "$LINKIS_PROPERTIES"
     grep -q "wds.linkis.bml.local.prefix" "$LINKIS_PROPERTIES" || echo "wds.linkis.bml.local.prefix=/opt/linkis/data/bml" >> "$LINKIS_PROPERTIES"
+    grep -q "wds.linkis.governance.station.admin" "$LINKIS_PROPERTIES" || echo "wds.linkis.governance.station.admin=hadoop,admin" >> "$LINKIS_PROPERTIES"
+    grep -q "wds.linkis.jobhistory.admin" "$LINKIS_PROPERTIES" || echo "wds.linkis.jobhistory.admin=hadoop,admin" >> "$LINKIS_PROPERTIES"
     mkdir -p /opt/linkis/data/bml /tmp/linkis/logs /tmp/linkis/resultset /appcom/Install /data/dss/bml/hadoop/20260827 2>/dev/null || true
     ln -sfn /opt/linkis /appcom/Install/LinkisInstall
     if [ -f "/opt/linkis/lib/linkis-engineconn-plugins/trino/dist/371/lib.zip" ]; then
@@ -125,6 +127,7 @@ if [ -f "$LINKIS_PROPERTIES" ]; then
     mkdir -p /appcom/tmp/engineConnPublickDir/1fc40cf9-6c3a-43df-9196-b3c424d41cfc/v000001/conf
     cp -rf /opt/linkis/lib/linkis-engineconn-plugins/trino/dist/371/conf/* /appcom/tmp/engineConnPublickDir/1fc40cf9-6c3a-43df-9196-b3c424d41cfc/v000001/conf/ 2>/dev/null || true
     chown -R hadoop:hadoop /data /appcom /tmp/linkis 2>/dev/null || true
+    chmod -R 777 /tmp/linkis 2>/dev/null || true
 fi
 
 # 同步配置到 /etc/linkis-conf
